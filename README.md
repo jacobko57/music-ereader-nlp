@@ -7,7 +7,8 @@ Using Microsoft Azure, we trained a Multi-Label Classification model using the p
 That label is then used with Spotify's API in order to recommend a song based on the sentiment of the text.
 
 ## Example Output:
-![Screenshot](screenshot.png)
+![image](https://user-images.githubusercontent.com/92756421/221414791-335c0262-659c-4373-b7ca-4b8a634076fe.png)
+
 
 # How to Use:
 
