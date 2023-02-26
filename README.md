@@ -15,7 +15,7 @@ That label is then used with Spotify's API in order to recommend a song based on
     npm install
     ```
 
-3. Add new text documents
+3. Add new text documents to multi.js
     * For most accurate results make sure each document is less than 500 words
 
 4. Run model using node multi.js
