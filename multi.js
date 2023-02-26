@@ -1,4 +1,5 @@
 import { AzureKeyCredential, TextAnalysisClient } from "@azure/ai-language-text";
+import fetch from "node-fetch";
 
 // Load the .env file if it exists
 import * as dotenv from "dotenv";
@@ -11,8 +12,13 @@ const deploymentName = process.env["MULTI_LABEL_CLASSIFY_DEPLOYMENT_NAME"] || "a
 const projectName = process.env["MULTI_LABEL_CLASSIFY_PROJECT_NAME"] || "audiobook";
 
 const documents = [
-  "The plot begins with a large group of characters where everyone thinks that the two main ones should be together but foolish things keep them apart. Misunderstandings, miscommunication, and confusion cause a series of humorous situations.",
+  "Set in today’s Mumbai, Barah Aana revolves around three friends: Shukla, a driver, Yadav, a watchman, and Aman, a waiter. Shukla is an older man, stoic and steady. Yadav, in his 30s, is meek and something of a pushover at work, but exhibits an underlying mischievous nature. Aman, on the other hand, is young, dynamic, and ambitious. In typical Mumbai fashion, the three are roommates, and the clash of their personalities regularly results in humorous, tongue-in-cheek banter. Things take a turn when the watchman becomes prey to misfortune; a series of chance events results in him stumbling on to a crime. The discovery changes his perspective, boosting his self-confidence enough to make him think that he had a found a new, low-risk way to make money. He then tries to sell the idea to his roommates, to get them to join him in executing a series of such crimes. As they get more and more mired in the spiral of events that follow, the three characters go through several changes as they are pushed more and more against the wall.",
 ];
+
+let max_confidence = 0;
+let genre = "";
+const token = "BQBPneLMLg4uCp-_yoer_aKvNi44-ypq-woVTKwPOxxap8aisM_JFr0TzuFypAZO9QDFlIOjKu5DZQ1ZS3oAH2yYtTxgJC_9SKKurwaku4ca13vKp0yAlnV_hwSOHI6MOhPq_C5WTlma-r3I2XVsuMn63wC4cI2nkurt1fvc6kKfYUT-e8kZETKh5DEKuSf2";
+
 
 async function main() {
   console.log("== Custom Entity Recognition Sample ==");
@@ -27,9 +33,6 @@ async function main() {
   ];
   const poller = await client.beginAnalyzeBatch(actions, documents, "en");
   const results = await poller.pollUntilDone();
-
-  let max_confidence = 0;
-  let genre = "";
 
   for await (const actionResult of results) {
     if (actionResult.kind !== "CustomMultiLabelClassification") {
@@ -54,6 +57,7 @@ async function main() {
 
         if (classification.confidenceScore > max_confidence) {
           genre = classification.category;
+          max_confidence = classification.confidenceScore;
         }
 
       }
@@ -62,13 +66,36 @@ async function main() {
 
   console.log(genre);
 
-  const token = "BQA7v50NNqPQHG8hjSlEFhprU8V_IDSVc9hTQ7rcwBJMR45oluf3Uw1qRcwD7pEL3n4Q9MaUQXdVVbjN661_54bRGJ-L4o1U1Jq4PX2I_-nDRugLtOy1vZulucjFdayVxRjyNOOrLgX_R7a_T7MvXgayd0MaWd2103kWHfuOxMJwqLWkOphrgAD5c0e_eXwr";
-
   const url = `https://api.spotify.com/v1/search?q=genre%3A${genre}&type=track&access_token=${token}`;
 
   console.log(url);
+
+  // Get request to search for genre
+  var searchParameters = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token
+    }
+  }
+  var song_name = await fetch('https://api.spotify.com/v1/search?q=genre%3A' + genre + '&type=track&limit=50', searchParameters)
+    .then(response => response.json())
+    .then(data => { 
+      let current_name = data.tracks.items[Math.floor(Math.random() * 50)].name; 
+      while (current_name.match(/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f]/)) {
+        current_name = data.tracks.items[Math.floor(Math.random() * 50)].name;
+      }
+      return current_name;
+    })
+
+  console.log("Song is: " + song_name);
 }
+
+
+
 
 main().catch((err) => {
   console.error("The sample encountered an error:", err);
 });
+
+
