@@ -17,7 +17,7 @@ const documents = [
 
 let max_confidence = 0;
 let genre = "";
-const token = "BQBPneLMLg4uCp-_yoer_aKvNi44-ypq-woVTKwPOxxap8aisM_JFr0TzuFypAZO9QDFlIOjKu5DZQ1ZS3oAH2yYtTxgJC_9SKKurwaku4ca13vKp0yAlnV_hwSOHI6MOhPq_C5WTlma-r3I2XVsuMn63wC4cI2nkurt1fvc6kKfYUT-e8kZETKh5DEKuSf2";
+const token = "BQC5h0UXawym79sEgAqqBXFyeBs1q66HamxEXoVABzMnyDORj_ATsVL-F-aSAzVDSiovlHVInmI-tjcB29qGi0U5-fdnF18BJuKztp4_wR_2AvnniaE0oeYxEffOGsaCq7kGh-pzNEXf9VryfDSROiQHNhioJAowP4uTQiTmC79oNf-JWaNLKQAGHceYQGRN";
 
 
 async function main() {
@@ -64,11 +64,6 @@ async function main() {
     }
   }
 
-  console.log(genre);
-
-  const url = `https://api.spotify.com/v1/search?q=genre%3A${genre}&type=track&access_token=${token}`;
-
-  console.log(url);
 
   // Get request to search for genre
   var searchParameters = {
@@ -78,7 +73,7 @@ async function main() {
       'Authorization': 'Bearer ' + token
     }
   }
-  var song_name = await fetch('https://api.spotify.com/v1/search?q=genre%3A' + genre + '&type=track&limit=50', searchParameters)
+  var trackID = await fetch('https://api.spotify.com/v1/search?q=genre%3A' + genre + '&type=track&limit=50', searchParameters)
     .then(response => response.json())
     .then(data => { 
       let current_name = data.tracks.items[Math.floor(Math.random() * 50)].name; 
@@ -88,7 +83,7 @@ async function main() {
       return current_name;
     })
 
-  console.log("Song is: " + song_name);
+    console.log("Spotify recommends: " + trackID);
 }
 
 
